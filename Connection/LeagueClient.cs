@@ -1,76 +1,40 @@
-﻿using System.Diagnostics;
-using System.Net.Http.Headers;
-using System.Text.RegularExpressions;
-using System.Text;
+﻿using Calibrum.Json;
+using System.Net.Http.Json;
 
 namespace Calibrum.Connection;
 
-public class LeagueClient : HttpConnection
+public class LeagueClient
 {
-    private LeagueClient(string port, string auth)
+    private readonly LocalHttpConnection localHttpConnection;
+
+    public LeagueClient(LocalHttpConnection localHttpConnection)
     {
-        httpClient.BaseAddress = new Uri($"https://127.0.0.1:{port}/");
-        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", auth);
+        this.localHttpConnection = localHttpConnection;
     }
 
     public static LeagueClient[] GetOpenedClients()
     {
-        string output = GetProcessOutput();
-        string[] ports = GetPorts(output);
-        string[] auths = GetAuths(GetPasswords(output));
-        LeagueClient[] clients = new LeagueClient[ports.Length];
-        for (int i = 0; i < clients.Length; i++)
+        var localHttpConnections = LocalHttpConnection.GetOpenedConnections("LeagueClientUx.exe");
+        var leagueClients = new LeagueClient[localHttpConnections.Length];
+        for (int i = 0; i < localHttpConnections.Length; i++)
         {
-            clients[i] = new LeagueClient(ports[i], auths[i]);
+            leagueClients[i] = new(localHttpConnections[i]);
         }
-        return clients;
+        return leagueClients;
     }
 
-    private static string GetProcessOutput()
+    public async Task<HttpResponseMessage> AcceptMatch()
     {
-        using Process cmd = new()
-        {
-            StartInfo = new()
-            {
-                FileName = "cmd.exe",
-                Arguments = "/c wmic PROCESS WHERE name='LeagueClientUx.exe' GET commandline",
-                RedirectStandardOutput = true
-            }
-        };
-        cmd.Start();
-        return cmd.StandardOutput.ReadToEnd();
+        return await localHttpConnection.CallEndpoint(HttpMethod.Post, "lol-matchmaking/v1/ready-check/accept");
     }
 
-    private static string[] GetPorts(string output)
+    public async Task<string> GetServer()
     {
-        MatchCollection matchCollection = Regex.Matches(output, @"--app-port=([^""]*)");
-        string[] ports = new string[matchCollection.Count];
-        for (int i = 0; i < ports.Length; i++)
-        {
-            ports[i] = matchCollection[i].Groups[1].Value;
-        }
-        return ports;
+        return (await localHttpConnection.CallEndpoint(HttpMethod.Get, "riotclient/get_region_locale").Result.Content.ReadFromJsonAsync<RegionLocale>())!.Region;
     }
 
-    private static string[] GetPasswords(string output)
+    public async Task<string> GetIdToken()
     {
-        MatchCollection matchCollection = Regex.Matches(output, @"--remoting-auth-token=([^""]*)");
-        string[] passwords = new string[matchCollection.Count];
-        for (int i = 0; i < passwords.Length; i++)
-        {
-            passwords[i] = matchCollection[i].Groups[1].Value;
-        }
-        return passwords;
-    }
-
-    private static string[] GetAuths(string[] passwords)
-    {
-        string[] auths = new string[passwords.Length];
-        for (int i = 0; i < auths.Length; i++)
-        {
-            byte[] encoded = Encoding.ASCII.GetBytes($"riot:{passwords[i]}");
-            auths[i] = Convert.ToBase64String(encoded);
-        }
-        return auths;
+        return (await localHttpConnection.CallEndpoint(HttpMethod.Get, "lol-login/v1/session").Result.Content.ReadFromJsonAsync<Session>())!.IdToken;
     }
 }

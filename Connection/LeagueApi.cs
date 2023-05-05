@@ -4,24 +4,11 @@ namespace Calibrum.Connection;
 
 public class LeagueApi : RiotApi
 {
-    private Server server;
+    public LeagueApi(Server server, string key) : base(key, GetPlatform(server)) { }
 
-    public Server Server
+    public async Task<HttpResponseMessage> GetSummoner(string summonerName)
     {
-        get
-        {
-            return server;
-        }
-        set
-        {
-            httpClient.BaseAddress = new Uri($"https://{GetPlatform(value)}.api.riotgames.com/");
-            server = value;
-        }
-    }
-
-    public LeagueApi(Server server, string key) : base(key)
-    {
-        Server = server;
+        return await remoteHttpConnection.CallEndpoint(HttpMethod.Get, $"lol/summoner/v4/summoners/by-name/{summonerName}");
     }
 
     private static string GetPlatform(Server server)

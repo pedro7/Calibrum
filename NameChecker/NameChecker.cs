@@ -10,7 +10,7 @@ public static class NameChecker
     public async static Task<DateTimeOffset> GetNameAvailabilityDatetime(Server server, string key, string summonerName)
     {
         LeagueApi leagueApi = new(server, key);
-        Summoner summoner = (await leagueApi.CallEndpoint(HttpMethod.Get, $"lol/summoner/v4/summoners/by-name/{summonerName}").Result.Content.ReadFromJsonAsync<Summoner>())!;
+        Summoner summoner = (await leagueApi.GetSummoner(summonerName).Result.Content.ReadFromJsonAsync<Summoner>())!;
         return GetCleanupDate(summoner.RevisionDate, summoner.SummonerLevel).ToLocalTime();
     }
 

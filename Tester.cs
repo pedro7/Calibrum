@@ -14,13 +14,13 @@ public static class Tester
     {
         //LeagueClient leagueClient = LeagueClient.GetOpenedClients()[0];
 
-        //Console.WriteLine(leagueClient.CallEndpoint(HttpMethod.Post, "lol-matchmaking/v1/ready-check/accept").Result.Content.ReadAsStringAsync().Result);
+        //Console.WriteLine(leagueClient.AcceptMatch().Result.Content.ReadAsStringAsync().Result);
 
         //LeagueStore leagueStore = new(leagueClient);
 
-        //Console.WriteLine(leagueStore.CallEndpoint(HttpMethod.Get, "history/purchase").Result.Content.ReadAsStringAsync().Result);
+        //Console.WriteLine(leagueStore.GetPurchaseHistory().Result.Content.ReadAsStringAsync().Result);
 
-        //Console.WriteLine(NameChecker.GetNameAvailabilityDatetime(Server.BR, "RGAPI-cabbf65c-ea68-4882-ae38-6f32408ecd3a", "nightcore").Result);
+        //Console.WriteLine(NameChecker.GetNameAvailabilityDatetime(Server.BR, "RGAPI-11fa52dd-6332-472d-aaf5-a6d6785f2170", "nightcore").Result);
 
         //RiotClient.OpenNewClient("--allow-multiple-clients --launch-product=league_of_legends --launch-patchline=live");
         //Thread.Sleep(5000);

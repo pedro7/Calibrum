@@ -1,23 +1,24 @@
-﻿using System.Net.Http.Headers;
-using System.Net.Http.Json;
-using Calibrum.Json;
+﻿namespace Calibrum.Connection;
 
-namespace Calibrum.Connection;
-
-public class LeagueStore : HttpConnection
+public class LeagueStore
 {
+    private readonly RemoteHttpConnection remoteHttpConnection;
+
     public LeagueStore(LeagueClient leagueClient)
     {
-        Connect(leagueClient);
+        string platform = GetPlatform(leagueClient.GetServer().Result);
+        string idToken = leagueClient.GetIdToken().Result;
+        Dictionary<string, string> headers = new()
+        {
+            { "Authorization", $"Bearer {idToken}" },
+            { "User-Agent", "Other" }
+        };
+        remoteHttpConnection = new(new Uri($"https://{platform}.store.leagueoflegends.com/storefront/v3/"), headers);
     }
 
-    private async void Connect(LeagueClient leagueClient)
+    public async Task<HttpResponseMessage> GetPurchaseHistory()
     {
-        string platform = GetPlatform(await GetServer(leagueClient));
-        string idToken = await GetIdToken(leagueClient);
-        httpClient.BaseAddress = new Uri($"https://{platform}.store.leagueoflegends.com/storefront/v3/");
-        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", idToken);
-        httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Other");
+        return await remoteHttpConnection.CallEndpoint(HttpMethod.Get, "history/purchase");
     }
 
     private static string GetPlatform(string server)
@@ -43,15 +44,5 @@ public class LeagueStore : HttpConnection
             "PBE" => "pbe",
             _ => throw new ArgumentException("Invalid server.")
         };
-    }
-
-    private static async Task<string> GetServer(LeagueClient leagueClient)
-    {
-        return (await leagueClient.CallEndpoint(HttpMethod.Get, "riotclient/get_region_locale").Result.Content.ReadFromJsonAsync<RegionLocale>())!.Region;
-    }
-
-    private static async Task<string> GetIdToken(LeagueClient leagueClient)
-    {
-        return (await leagueClient.CallEndpoint(HttpMethod.Get, "lol-login/v1/session").Result.Content.ReadFromJsonAsync<Session>())!.IdToken;
     }
 }
