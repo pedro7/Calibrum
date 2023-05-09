@@ -43,7 +43,7 @@ public class LocalHttpConnection : HttpConnection
 
     private static string[] GetPorts(string output)
     {
-        MatchCollection matchCollection = Regex.Matches(output, @"--app-port=([^""]*)");
+        MatchCollection matchCollection = Regex.Matches(output, @"--app-port=([^ ]*)");
         string[] ports = new string[matchCollection.Count];
         for (int i = 0; i < ports.Length; i++)
         {
@@ -54,7 +54,7 @@ public class LocalHttpConnection : HttpConnection
 
     private static string[] GetPasswords(string output)
     {
-        MatchCollection matchCollection = Regex.Matches(output, @"--remoting-auth-token=([^""]*)");
+        MatchCollection matchCollection = Regex.Matches(output, @"--remoting-auth-token=([^ ]*)");
         string[] passwords = new string[matchCollection.Count];
         for (int i = 0; i < passwords.Length; i++)
         {

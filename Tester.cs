@@ -21,10 +21,5 @@ public static class Tester
         //Console.WriteLine(leagueStore.GetPurchaseHistory().Result.Content.ReadAsStringAsync().Result);
 
         //Console.WriteLine(NameChecker.GetNameAvailabilityDatetime(Server.BR, "RGAPI-11fa52dd-6332-472d-aaf5-a6d6785f2170", "nightcore").Result);
-
-        //RiotClient.OpenNewClient("--allow-multiple-clients --launch-product=league_of_legends --launch-patchline=live");
-        //Thread.Sleep(5000);
-        //RiotClient client = RiotClient.GetOpenedClients()[0];
-        //await client.Login("pedrogabriieel1", "wait.Isw0retoher.Iswore");
     }
 }

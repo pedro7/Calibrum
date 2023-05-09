@@ -6,7 +6,7 @@ public class RiotClient
 {
     private readonly LocalHttpConnection localHttpConnection;
 
-    public RiotClient(LocalHttpConnection localHttpConnection)
+    private RiotClient(LocalHttpConnection localHttpConnection)
     {
         this.localHttpConnection = localHttpConnection;
     }
@@ -26,7 +26,7 @@ public class RiotClient
 
     public static RiotClient[] GetOpenedClients()
     {
-        var localHttpConnections = LocalHttpConnection.GetOpenedConnections("RiotClientServices.exe");
+        var localHttpConnections = LocalHttpConnection.GetOpenedConnections("RiotClientUx.exe");
         var riotClients = new RiotClient[localHttpConnections.Length];
         for (int i = 0; i < localHttpConnections.Length; i++)
         {
